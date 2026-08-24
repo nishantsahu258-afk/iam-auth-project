@@ -1,0 +1,14 @@
+{
+  "name": "iam-auth-assignment",
+  "version": "1.0.0",
+  "description": "IAM Authentication & Registration - Internship Assignment",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^4.19.2"
+  }
+}

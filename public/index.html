@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureID - Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- ADDED: JavaScript file for validation -->
+    <script src="js/registration.js" defer></script>
+</head>
+<body>
+    <main class="container">
+        <div class="form-wrapper">
+            <div class="card-header">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#1A56DB"/>
+                    </svg>
+                    SecureID
+                </div>
+                <div class="stepper-container">
+                    <div class="stepper">
+                        <div class="step active">1</div>
+                        <div class="step">2</div>
+                        <div class="step">3</div>
+                        <div class="step">4</div>
+                        <div class="step">5</div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+            <div class="form-header" id="mainHeader">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <h1>Create your account</h1>
+                <p>Let's get you started</p>
+            </div>
+
+            <!-- Top level error banner -->
+            <div id="formError" class="form-error" style="display: none;"></div>
+
+            <form id="registrationForm" class="registration-form" novalidate>
+                <div class="form-layout">
+                    
+                    <div class="input-group" style="grid-area: name;" id="group-fullName">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="input-control" placeholder="Priya Sharma">
+                        <span class="error-text"></span>
+                    </div>
+
+                    <div class="input-group" style="grid-area: email;" id="group-email">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="input-control" placeholder="priya.sharma@email.com">
+                        <span class="error-text"></span>
+                    </div>
+
+                    <div class="input-group" style="grid-area: mobile;" id="group-mobile">
+                        <label for="mobile">Mobile Number</label>
+                        <div class="phone-input-group">
+                            <select class="country-code" aria-label="Country Code">
+                                <option value="+91">+91</option>
+                            </select>
+                            <input type="tel" id="mobile" class="input-control" placeholder="98765 43210">
+                        </div>
+                        <span class="error-text"></span>
+                    </div>
+
+                    <div class="input-group" style="grid-area: password;" id="group-password">
+                        <label for="password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" class="input-control" placeholder="••••••••••••">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-text"></span>
+                    </div>
+
+                    <div class="password-requirements" style="grid-area: requirements;">
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li id="req-length">
+                                <div class="check-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                At least 8 characters
+                            </li>
+                            <li id="req-upper">
+                                <div class="check-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                1 uppercase letter
+                            </li>
+                            <li id="req-number">
+                                <div class="check-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                1 number
+                            </li>
+                            <li id="req-special">
+                                <div class="check-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                1 special character
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="terms-group-wrapper" style="grid-area: terms;" id="group-terms">
+                        <div class="terms-group">
+                            <input type="checkbox" id="terms">
+                            <label for="terms">I agree to the <a href="#">Terms & Conditions</a><br> and <a href="#">Privacy Policy</a></label>
+                        </div>
+                        <span class="error-text"></span>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="grid-area: button;">Create Account</button>
+
+                    <div class="auth-links" style="grid-area: links;">
+                        Already have an account? <a href="#">Login</a>
+                    </div>
+
+                </div>
+            </form>
+            
+            <!-- OTP Verification Screen (Hidden initially) -->
+            <div id="otpScreen" class="otp-screen" style="display: none;">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div class="form-header" style="text-align: center;">
+                    <div style="background-color: rgba(26, 86, 219, 0.1); color: var(--primary-color); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </div>
+                    <h1 style="font-size: 1.35rem; margin-bottom: 0.5rem;">Verify your email</h1>
+                    <p style="font-size: 0.9rem; line-height: 1.5;">We have sent a 6-digit code to <br><strong id="displayEmail" style="color: var(--text-main);"></strong></p>
+                </div>
+                
+                <form id="otpForm">
+                    <!-- Top level error banner for OTP -->
+                    <div id="otpError" class="form-error" style="display: none; margin-bottom: 1rem;"></div>
+
+                    <div class="otp-input-group">
+                        <input type="text" maxlength="1" class="otp-box">
+                        <input type="text" maxlength="1" class="otp-box">
+                        <input type="text" maxlength="1" class="otp-box">
+                        <input type="text" maxlength="1" class="otp-box">
+                        <input type="text" maxlength="1" class="otp-box">
+                        <input type="text" maxlength="1" class="otp-box">
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                        Code expires in <span style="color: var(--primary-color); font-weight: 700;">02:45</span>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                        <a href="#" id="resendCode" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Resend code (00:25)</a>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="#" style="color: var(--primary-color); font-size: 0.85rem; text-decoration: none;">Didn't receive the code?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="verifyBtn" style="display: none;">Verify Email</button>
+                </form>
+            </div>
+
+            <!-- SMS OTP Verification Screen -->
+            <div id="smsOtpScreen" style="display: none;">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div class="form-header" style="text-align: center;">
+                    <div style="background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Verify your mobile</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">We have sent a 6-digit code to <br><strong id="displayMobile" style="color: var(--text-main);"></strong></p>
+                </div>
+                
+                <form id="smsOtpForm">
+                    <!-- Top level error banner for SMS OTP -->
+                    <div id="smsOtpError" class="form-error" style="display: none; margin-bottom: 1rem;"></div>
+
+                    <div class="otp-input-group">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="sms-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                        Code expires in <span style="color: var(--primary-color); font-weight: 700;">02:45</span>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                        <a href="#" id="resendSms" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Resend code (00:25)</a>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Wrong number?</span> <a href="#" id="changeMobileBtn" style="color: var(--primary-color); font-size: 0.85rem; font-weight: 600; text-decoration: none;">Change</a>
+                    </div>
+
+                    <button type="submit" id="verifySmsBtn" class="btn btn-primary" style="display: none;">Verify Mobile</button>
+                </form>
+            </div>
+            <!-- MFA Setup Screen -->
+            <!-- MFA Method Selection Screen (Mobile Only) -->
+            <div id="mfaSelectionScreen" style="display: none;">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div class="text-center" style="margin-bottom: 2rem;">
+                    <div style="background-color: rgba(99, 102, 241, 0.1); color: #6366F1; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <polyline points="10 10 12 8"></polyline>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Set up Multi-Factor Auth</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">Add an extra layer of security<br>to protect your account.</p>
+                </div>
+
+                <div class="mfa-methods" style="margin-bottom: 1.5rem;">
+                    <!-- Authenticator App Option -->
+                    <div class="mfa-option active" data-method="authenticator" style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--primary-color); border-radius: 0.5rem; margin-bottom: 0.75rem; background-color: var(--primary-light); cursor: pointer;">
+                        <div class="mfa-option-icon" style="flex-shrink: 0; margin-right: 1rem; background: none; width: auto; height: auto;">
+                            <!-- Radio button checked icon -->
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--primary-color)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="5" fill="var(--primary-color)"></circle></svg>
+                        </div>
+                        <div class="mfa-option-text" style="flex-grow: 1;">
+                            <div class="mfa-option-title" style="font-weight: 600; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0;">Authenticator App</div>
+                            <div class="mfa-option-desc" style="color: var(--text-muted); font-size: 0.8rem;">(Google Authenticator / Authy)</div>
+                        </div>
+                    </div>
+
+                    <!-- SMS Option -->
+                    <div class="mfa-option" data-method="sms" style="display: flex; align-items: center; padding: 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 0.75rem; background-color: white; cursor: pointer;">
+                        <div class="mfa-option-icon" style="flex-shrink: 0; margin-right: 1rem; background: none; width: auto; height: auto;">
+                            <!-- Radio button unchecked icon -->
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--border-color)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle></svg>
+                        </div>
+                        <div class="mfa-option-text" style="flex-grow: 1;">
+                            <div class="mfa-option-title" style="font-weight: 600; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0;">SMS Authentication</div>
+                            <div class="mfa-option-desc" style="color: var(--text-muted); font-size: 0.8rem;">Receive codes on your mobile</div>
+                        </div>
+                    </div>
+
+                    <!-- Email Option -->
+                    <div class="mfa-option" data-method="email" style="display: flex; align-items: center; padding: 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background-color: white; cursor: pointer;">
+                        <div class="mfa-option-icon" style="flex-shrink: 0; margin-right: 1rem; background: none; width: auto; height: auto;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--border-color)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle></svg>
+                        </div>
+                        <div class="mfa-option-text" style="flex-grow: 1;">
+                            <div class="mfa-option-title" style="font-weight: 600; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0;">Email Authentication</div>
+                            <div class="mfa-option-desc" style="color: var(--text-muted); font-size: 0.8rem;">Receive codes on your email</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="continueMfaSelectionBtn" class="btn btn-primary" style="margin-bottom: 1rem;">Continue</button>
+                
+                <div style="text-align: center;">
+                    <a href="#" id="skipMfaBtn" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500; text-decoration: none;">Skip for now</a>
+                </div>
+            </div>
+
+            <!-- Authenticator Setup / Verification Screen -->
+            <div id="mfaSetupScreen" style="display: none;">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div class="text-center" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; text-align: center;">Scan QR Code</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; text-align: center;">Open your authenticator app and<br>scan this QR code</p>
+                </div>
+                
+                <div style="width: 160px; height: 160px; background-color: white; border: 1px solid var(--border-color); border-radius: 0.5rem; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; padding: 10px;">
+                    <!-- Mock QR Code SVG -->
+                    <svg width="140" height="140" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="white"/>
+                        <!-- Top Left Square -->
+                        <rect x="5" y="5" width="30" height="30" fill="black"/>
+                        <rect x="10" y="10" width="20" height="20" fill="white"/>
+                        <rect x="15" y="15" width="10" height="10" fill="black"/>
+                        <!-- Top Right Square -->
+                        <rect x="65" y="5" width="30" height="30" fill="black"/>
+                        <rect x="70" y="10" width="20" height="20" fill="white"/>
+                        <rect x="75" y="15" width="10" height="10" fill="black"/>
+                        <!-- Bottom Left Square -->
+                        <rect x="5" y="65" width="30" height="30" fill="black"/>
+                        <rect x="10" y="70" width="20" height="20" fill="white"/>
+                        <rect x="15" y="75" width="10" height="10" fill="black"/>
+                        <!-- Random dots/squares for pattern -->
+                        <rect x="45" y="5" width="10" height="10" fill="black"/>
+                        <rect x="50" y="20" width="10" height="10" fill="black"/>
+                        <rect x="40" y="35" width="20" height="10" fill="black"/>
+                        <rect x="5" y="45" width="10" height="10" fill="black"/>
+                        <rect x="25" y="40" width="10" height="20" fill="black"/>
+                        <rect x="70" y="45" width="25" height="10" fill="black"/>
+                        <rect x="80" y="60" width="10" height="20" fill="black"/>
+                        <rect x="45" y="55" width="20" height="20" fill="black"/>
+                        <rect x="50" y="80" width="10" height="15" fill="black"/>
+                        <rect x="65" y="85" width="30" height="10" fill="black"/>
+                        <rect x="65" y="65" width="10" height="10" fill="black"/>
+                    </svg>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <a href="#" style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem; text-decoration: none;">Can't scan? Enter setup key</a>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="backFromSetupBtn" class="btn btn-outline" style="flex: 1;">Back</button>
+                    <button type="button" id="continueToMfaVerifyBtn" class="btn btn-primary" style="flex: 1; margin-top: 0;">Continue</button>
+                </div>
+            </div>
+
+            <!-- MFA Code Verification Screen -->
+            <div id="mfaVerifyScreen" style="display: none;">
+                <div class="mobile-back-btn" onclick="window.location.reload()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div class="form-header" style="text-align: center;">
+                    <div style="background-color: rgba(99, 102, 241, 0.1); color: #6366F1; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <polyline points="10 10 12 8"></polyline>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Enter the 6-digit code</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">Enter the code from your<br>authenticator app</p>
+                </div>
+
+                <form id="mfaVerifyForm">
+                    <div id="mfaVerifyError" class="form-error" style="display: none; margin-bottom: 1rem;"></div>
+
+                    <div class="otp-input-group">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" maxlength="1" class="mfa-otp-box otp-box" pattern="[0-9]*" inputmode="numeric">
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                        Code expires in <span style="color: var(--primary-color); font-weight: 700;">00:28</span>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="#" style="color: var(--primary-color); font-size: 0.85rem; text-decoration: none;">Can't access your app?</a>
+                    </div>
+                    
+                    <button type="submit" id="verifyMfaBtn" class="btn btn-primary" style="display: none;">Verify & Enable</button>
+                </form>
+            </div>
+
+            <!-- Registration Success Screen -->
+            <div id="successScreen" style="display: none; text-align: center;">
+                <div style="background-color: var(--success-color); color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">Account created!</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem;">Your account has been created<br>successfully and MFA is enabled.</p>
+                
+                <div style="text-align: left; max-width: 250px; margin: 0 auto 2.5rem;">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg style="color: var(--success-color); margin-right: 0.75rem;" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span style="color: var(--text-main); font-weight: 500;">Email verified</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <svg style="color: var(--success-color); margin-right: 0.75rem;" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span style="color: var(--text-main); font-weight: 500;">Mobile verified</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <svg style="color: var(--success-color); margin-right: 0.75rem;" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span style="color: var(--text-main); font-weight: 500;">MFA enabled</span>
+                    </div>
+                </div>
+                
+                <button type="button" id="continueToLoginBtn" class="btn btn-primary" style="width: 100%;">Continue to Login</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
