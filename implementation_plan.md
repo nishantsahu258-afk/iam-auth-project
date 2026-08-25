@@ -1,43 +1,42 @@
-# Implementation Plan: Switch to Gmail Nodemailer
+# Phase 2: Login Journey - Step 1
 
-To allow your application to send verification emails to **anyone** for free, we will replace the restrictive `resend` service with `nodemailer` and route the emails through your personal Gmail account.
+This plan outlines the steps to build the Default Login screen to perfectly match the provided SecureID mockups (Mobile and Web), keeping the existing Registration Journey completely untouched.
 
 ## Proposed Changes
 
-### 1. Dependencies
-- We will run `npm install nodemailer`.
-- We will uninstall `resend`.
+### 1. Create Login HTML (`public/login.html`)
+- **Structure**: Create a brand new HTML file for the login flow.
+- **Form Layout**: 
+  - Email/Username field.
+  - Password field with a Show/Hide toggle.
+  - A flex row for the "Remember me" checkbox and "Forgot password?" link.
+  - Primary "Login" button.
+  - Visual "or" divider.
+  - Secondary "Continue with Google" button.
+  - "New here? Create an account" link pointing to `index.html`.
+- **Responsive Layout**:
+  - **Mobile**: Centered structure with top logo, similar to the mobile registration flow.
+  - **Desktop**: A split-card layout. The left side will feature a blue sidebar with the SecureID logo and tagline ("Secure access to your account"). The right side will contain the login form.
 
-### 2. Environment Variables
-You will need to update your `.env` and Vercel environment variables. We will replace `RESEND_API_KEY` with:
-```env
-GMAIL_USER=your_email@gmail.com
-GMAIL_APP_PASSWORD=your_16_digit_app_password
-```
+### 2. Add Login-Specific CSS (`public/css/style.css`)
+- Re-use existing variables (`--primary-color`, etc.) and classes (`.input-control`, `.btn-primary`).
+- **New Classes**:
+  - `.login-wrapper`: Flex container that switches to a 2-column grid on desktop screens (`@media (min-width: 1024px)`).
+  - `.login-sidebar`: The blue left panel (visible on Desktop only).
+  - `.login-form-area`: The right panel containing the form.
+  - `.divider`: For the "or" text with lines on the sides.
+  - `.btn-google`: Styling for the secondary Google button with an icon.
 
-### 3. Updates to `src/server.js`
-- Remove all Resend initialization.
-- Initialize Nodemailer transporter:
-```javascript
-const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
-    }
-});
-```
-- Replace the `resend.emails.send` function with `transporter.sendMail` inside the `/api/register` route, retaining the exact same beautiful HTML email template.
+### 3. Add Frontend Validation (`public/js/login.js`)
+- Handle the **Password Visibility** toggle.
+- Implement **Frontend Validation** on form submit:
+  - If Email/Username is empty: Show existing `.error-text` (red border, red text).
+  - If Password is empty: Show error.
+- **Strictly No Backend**: As per your constraints, `login.js` will *only* handle visual validation and will *not* contain API calls, OTP logic, or session handling at this stage.
 
-## User Review Required
+## Open Questions / Clarifications
+- I will reuse the existing Shield logo SVG that is currently blue, but I will make a white version of it for the blue desktop sidebar.
+- "Forgot password?" will just be an anchor tag `href="#"` since there is no destination yet.
+- I'll use the existing `public/css/style.css` so we don't duplicate fonts and variables, appending the new login classes to the bottom.
 
-> [!IMPORTANT]
-> **How to get your Gmail App Password:**
-> 1. Go to your [Google Account Manage Settings](https://myaccount.google.com/).
-> 2. Search for **"App Passwords"** in the top search bar. *(Note: You MUST have 2-Step Verification turned on for your Google account to see this option).*
-> 3. Create a new app (call it "SecureID Auth").
-> 4. Google will give you a **16-character password**. Copy it.
-> 5. Add `GMAIL_USER` and `GMAIL_APP_PASSWORD` to your `.env` file.
-
-Click **Proceed** if you are ready for me to implement this new email system!
+If this approach perfectly aligns with your instructions for Step 1, click **Proceed** and I will implement the code!
