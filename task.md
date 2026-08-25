@@ -1,6 +1,0 @@
-- `[x]` Create `public/login.html` (Mobile and Desktop split-layout structure)
-- `[x]` Update `public/css/style.css` (Add login specific classes: `.login-wrapper`, `.login-sidebar`, `.login-content`, etc.)
-- `[x]` Create `public/js/login.js` (Frontend validation, password toggle)
-- `[x]` Verify UI matches mockups (Mobile: Centered, Desktop: Split-card)
-- `[x]` Verify navigation (Create account points to `index.html`)
-- `[x]` Write `walkthrough.md`

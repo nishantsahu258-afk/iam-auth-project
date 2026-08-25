@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureID - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/login.js" defer></script>
+</head>
+<body class="login-page">
+    <main class="container">
+        <div class="login-wrapper">
+            
+            <!-- Left Sidebar for Desktop -->
+            <div class="login-sidebar">
+                <div class="sidebar-logo">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Shield -->
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#FFFFFF"/>
+                        <!-- Lock body (Blue) -->
+                        <rect x="9" y="12" width="6" height="5" rx="1" fill="#1A56DB"/>
+                        <!-- Lock shackle (Blue) -->
+                        <path d="M10 12v-2a2 2 0 1 1 4 0v2" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <h2>SecureID</h2>
+                    <p>Secure access<br>to your account</p>
+                </div>
+                <div class="sidebar-footer">
+                    <!-- Copyright moved to right content area -->
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="login-content">
+                
+                <!-- STEP 1: LOGIN -->
+                <div class="step-container active" id="step-login">
+                    <!-- Mobile Logo (Hidden on Desktop) -->
+                    <div class="mobile-logo text-center" id="mobileLogoContainer">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto" style="color: #1A56DB;">
+                            <!-- Shield -->
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor"/>
+                            <!-- Lock body (White) -->
+                            <rect x="9" y="12" width="6" height="5" rx="1" fill="#FFFFFF"/>
+                            <!-- Lock shackle (White) -->
+                            <path d="M10 12v-2a2 2 0 1 1 4 0v2" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="form-header text-center">
+                        <h1>Welcome back!</h1>
+                        <p>Login to your account</p>
+                    </div>
+
+                    <form id="loginForm" class="login-form" novalidate>
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            
+                            <div class="input-group" id="group-email">
+                                <label for="email" class="sr-only" style="display: none;">Email or Username</label>
+                                <div class="input-with-icon">
+                                    <span class="input-icon">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    </span>
+                                    <input type="text" id="email" class="input-control has-icon" placeholder="Email or Username">
+                                    <span class="error-icon" style="display: none; position: absolute; right: 1rem; color: #EF4444; pointer-events: none;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                    </span>
+                                </div>
+                                <span class="error-text"></span>
+                            </div>
+
+                            <div class="input-group" id="group-password">
+                                <label for="password" class="sr-only" style="display: none;">Password</label>
+                                <div class="password-input-wrapper">
+                                    <div class="input-with-icon">
+                                        <span class="input-icon">
+                                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                        </span>
+                                        <input type="password" id="password" class="input-control has-icon" placeholder="Password">
+                                    </div>
+                                    <button type="button" class="toggle-password" id="togglePasswordBtn" aria-label="Toggle password visibility">
+                                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
+                                    <span class="error-icon" id="passwordErrorIcon" style="display: none; position: absolute; right: 2.5rem; color: #EF4444; pointer-events: none; z-index: 10;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                    </span>
+                                </div>
+                                <span class="error-text"></span>
+                            </div>
+
+                            <div id="loginError" class="form-error" style="display: none; background: transparent; color: #EF4444; text-align: center; padding: 0; margin-bottom: 0.5rem; font-weight: 500;"></div>
+
+                            <div class="login-options" style="margin-top: -0.5rem;">
+                                <div class="terms-group-wrapper" style="margin: 0;">
+                                    <div class="terms-group">
+                                        <input type="checkbox" id="rememberMe">
+                                        <label for="rememberMe" style="font-weight: 500;">Remember me</label>
+                                    </div>
+                                </div>
+                                <a href="#" class="forgot-password">Forgot password?</a>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">Login</button>
+
+                            <div class="divider">
+                                <span>or</span>
+                            </div>
+
+                            <button type="button" class="btn-outline btn-google">
+                                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                </svg>
+                                Continue with Google
+                            </button>
+
+                            <div class="auth-links text-center" style="margin-top: 0.5rem;">
+                                New here? <a href="index.html">Create an account</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- STEP 3: CHOOSE METHOD -->
+                <div class="step-container" id="step-choose-method" style="display: none;">
+                    <div class="mobile-back-btn" id="backBtnChoose">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </div>
+
+                    <div class="mobile-logo text-center">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto">
+                            <!-- Shield -->
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#1A56DB"/>
+                            <!-- Lock body (White) -->
+                            <rect x="9" y="12" width="6" height="5" rx="1" fill="#FFFFFF"/>
+                            <!-- Lock shackle (White) -->
+                            <path d="M10 12v-2a2 2 0 1 1 4 0v2" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="form-header text-center">
+                        <h1 style="font-size: 1.5rem;">Verify your identity</h1>
+                        <p>Choose a method to continue</p>
+                    </div>
+                    
+                    <form id="chooseMethodForm" class="login-form">
+                        <div class="mfa-options">
+                            <label class="mfa-option active">
+                                <div class="mfa-option-icon" style="color: #1A56DB;">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                </div>
+                                <div class="mfa-option-text">
+                                    <div class="mfa-option-title">Email OTP</div>
+                                    <div class="mfa-option-desc">Receive a code on your email</div>
+                                </div>
+                                <div class="mfa-option-radio">
+                                    <div class="radio-circle checked"></div>
+                                </div>
+                            </label>
+
+                            <label class="mfa-option">
+                                <div class="mfa-option-icon" style="color: #10B981;">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                </div>
+                                <div class="mfa-option-text">
+                                    <div class="mfa-option-title">SMS OTP</div>
+                                    <div class="mfa-option-desc">Receive a code on your mobile</div>
+                                </div>
+                                <div class="mfa-option-radio">
+                                    <div class="radio-circle"></div>
+                                </div>
+                            </label>
+
+                            <label class="mfa-option">
+                                <div class="mfa-option-icon" style="color: #6B7280;">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                </div>
+                                <div class="mfa-option-text">
+                                    <div class="mfa-option-title">Authenticator App</div>
+                                    <div class="mfa-option-desc">Use code from authenticator app</div>
+                                </div>
+                                <div class="mfa-option-radio">
+                                    <div class="radio-circle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" style="margin-top: 2rem;">Continue</button>
+                    </form>
+                </div>
+
+                <!-- STEP 4, 5, 6: OTP VERIFICATION -->
+                <div class="step-container" id="step-otp-verify" style="display: none;">
+                    <div class="mobile-back-btn" id="backBtnOtp">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </div>
+
+                    <div class="mobile-logo" style="text-align: center;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto">
+                            <!-- Envelope icon for OTP screen -->
+                            <rect width="48" height="48" rx="24" fill="#EEF2FF"/>
+                            <path d="M16 16h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H16c-1.1 0-2-.9-2-2V18c0-1.1.9-2 2-2z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M34 18l-10 7-10-7" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="form-header" style="text-align: center;">
+                        <h1 id="verify-method-title" style="font-size: 1.5rem;">Email Verification</h1>
+                        <p>Enter the 6-digit code sent to<br><strong id="verify-target-display" style="color: var(--text-main);">priya.sharma@email.com</strong></p>
+                    </div>
+
+                    <div class="otp-input-group">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-box login-otp" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    </div>
+
+                    <div id="otpErrorText" class="form-error" style="display: none; margin-top: 1.5rem;">
+                        Incorrect code. Please try again.<br>You have 2 attempts left.
+                    </div>
+                    
+                    <div id="otpExpiredText" class="form-error" style="display: none; margin-top: 1.5rem;">
+                        Code expired.
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <p id="otpTimerText" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2.5rem;">Code expires in <span id="timerDisplay" style="color: var(--primary-color); font-weight: 700;">02:45</span></p>
+                        
+                        <div style="margin-bottom: 2.5rem;">
+                            <a href="#" id="resendOtpLink" style="color: var(--primary-color); font-size: 0.85rem; font-weight: 600; text-decoration: none;">Resend code (00:25)</a>
+                            <button type="button" id="resendOtpBtnSolid" class="btn-primary" style="display: none; margin-bottom: 1rem;">Resend code</button>
+                            <p id="newCodeTimerText" style="display: none; color: var(--text-muted); font-size: 0.85rem; margin-top: 0;">You can request a new code in <span id="newCodeTimerDisplay" style="font-weight: 600;">00:28</span></p>
+                        </div>
+                        
+                        <div>
+                            <a href="#" style="color: var(--primary-color); font-size: 0.85rem; font-weight: 500; text-decoration: none;">Didn't receive the code?</a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- STEP 7: AUTHENTICATED STATE -->
+                <div class="step-container" id="step-authenticated" style="display: none; text-align: center;">
+                    <div class="mobile-logo" style="margin-bottom: 2rem;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto">
+                            <rect width="24" height="24" rx="12" fill="#10B981" fill-opacity="0.1"/>
+                            <path d="M16.5 8L10.5 14.5L7.5 11.5" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="form-header">
+                        <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem; color: #111827;">Welcome Back</h1>
+                        <p id="authUserName" style="font-size: 1.25rem; font-weight: 600; color: #1F2937; margin-bottom: 0.25rem;">User Name</p>
+                        <p id="authUserEmail" style="color: var(--text-muted); margin-bottom: 2rem;">user@example.com</p>
+                    </div>
+
+                    <div style="background-color: #F3F4F6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                        <h3 style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Session Identity</h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-muted); font-size: 0.875rem;">MFA Status</span>
+                            <span id="authMfaStatus" style="font-weight: 500; font-size: 0.875rem; color: #10B981;">Enabled</span>
+                        </div>
+                    </div>
+
+                    <button type="button" id="logoutBtn" class="btn-primary" style="background-color: #EF4444; border-color: #EF4444;">Sign Out</button>
+                </div>
+
+                <div class="footer-copyright" style="text-align: center; margin-top: auto; padding-top: 2rem; color: var(--text-muted); font-size: 0.85rem;">&copy; 2026 SecureID. All rights reserved.</div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

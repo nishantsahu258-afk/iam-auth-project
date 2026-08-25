@@ -3,6 +3,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const session = require('express-session');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,9 +22,20 @@ const transporter = nodemailer.createTransport({
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-const path = require('path');
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, '../public')));
+
+// Session Configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'secureid_prototype_secret_key_123',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    }
+}));
+// Serve static files from the frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ---------------------------------------------------------
 // In-Memory Database (For assignment purposes only)
@@ -577,6 +591,288 @@ app.post('/api/verify-mfa', (req, res) => {
             message: 'An internal error occurred during MFA verification.'
         });
     }
+});
+
+/**
+ * POST /api/login
+ * Validates credentials and checks MFA status
+ */
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ status: 'error', message: 'Email and password are required.' });
+        }
+
+        const user = users.find(u => u.email === email);
+        if (!user) {
+            return res.status(401).json({ status: 'error', message: 'Invalid credentials.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            return res.status(401).json({ status: 'error', message: 'Invalid credentials.' });
+        }
+
+        if (user.mfaEnabled) {
+            return res.status(200).json({ 
+                status: 'mfa_required', 
+                data: { userId: user.id, method: user.mfaMethod } 
+            });
+        }
+
+        req.session.userId = user.id;
+        return res.status(200).json({ status: 'authenticated', data: { userId: user.id } });
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(500).json({ status: 'error', message: 'An internal error occurred during login.' });
+    }
+});
+
+/**
+ * POST /api/send-login-otp
+ * Generate and send Login OTP
+ */
+app.post('/api/send-login-otp', async (req, res) => {
+    try {
+        const { userId, method } = req.body;
+
+        if (!userId || !method) {
+            return res.status(400).json({ status: 'error', message: 'userId and method are required.' });
+        }
+
+        const user = users.find(u => u.id === userId);
+        if (!user || !user.mfaEnabled) {
+            return res.status(400).json({ status: 'error', message: 'Invalid request or MFA not enabled.' });
+        }
+
+        const allowedMethods = ['email', 'sms'];
+        if (!allowedMethods.includes(method)) {
+            return res.status(400).json({ status: 'error', message: 'Unsupported MFA method for this step.' });
+        }
+
+        const otp = crypto.randomInt(100000, 1000000).toString();
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+        const challengeId = crypto.randomUUID();
+        const channel = `login_${method}`;
+
+        const existingIndex = otpChallenges.findIndex(c => c.userId === userId && c.channel.startsWith('login_'));
+        if (existingIndex !== -1) {
+            otpChallenges.splice(existingIndex, 1);
+        }
+
+        otpChallenges.push({ challengeId, userId, channel, otpHash, expiresAt, attempts: 0 });
+
+        if (method === 'email' && process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+            console.log(`\n[SIMULATED LOGIN EMAIL]\nTo: ${user.email}\nOTP: ${otp}\n`);
+            const htmlTemplate = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9fa; padding: 20px; border-radius: 8px;">
+                    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h3 style="color: #111827; margin-top: 0;">Login Verification</h3>
+                        <p style="color: #4b5563; line-height: 1.6;">Your SecureID Login code is:</p>
+                        <strong style="font-size: 24px; letter-spacing: 4px; color: #111827;">${otp}</strong>
+                        <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">This code expires in 15 minutes.</p>
+                    </div>
+                </div>
+            `;
+            await transporter.sendMail({
+                from: `"SecureID Identity Service" <${process.env.GMAIL_USER}>`,
+                to: user.email,
+                subject: 'Your SecureID Login Code',
+                html: htmlTemplate
+            });
+        } else if (method === 'sms') {
+            console.log(`\n[SIMULATED LOGIN SMS]\nTo: ${user.mobile}\nOTP: ${otp}\n`);
+        }
+
+        res.status(200).json({ status: 'success', data: { challengeId, method } });
+
+    } catch (error) {
+        console.error('Send Login OTP Error:', error);
+        res.status(500).json({ status: 'error', message: 'An error occurred while sending Login OTP.' });
+    }
+});
+
+/**
+ * POST /api/verify-login-otp
+ * Verify Login OTP
+ */
+app.post('/api/verify-login-otp', async (req, res) => {
+    try {
+        const { challengeId, otp } = req.body;
+
+        if (!challengeId || !otp) {
+            return res.status(400).json({ status: 'error', message: 'Challenge ID and OTP are required.' });
+        }
+
+        const challengeIndex = otpChallenges.findIndex(c => c.challengeId === challengeId && c.channel.startsWith('login_'));
+        
+        if (challengeIndex === -1) {
+            return res.status(400).json({ status: 'error', message: 'Invalid or expired challenge.' });
+        }
+
+        const challenge = otpChallenges[challengeIndex];
+
+        if (new Date() > new Date(challenge.expiresAt)) {
+            otpChallenges.splice(challengeIndex, 1);
+            return res.status(400).json({ status: 'error', code: 'OTP_EXPIRED', message: 'OTP has expired.' });
+        }
+
+        challenge.attempts += 1;
+        const MAX_ATTEMPTS = 3;
+
+        const hashedInput = crypto.createHash('sha256').update(otp).digest('hex');
+
+        if (hashedInput !== challenge.otpHash) {
+            if (challenge.attempts >= MAX_ATTEMPTS) {
+                otpChallenges.splice(challengeIndex, 1);
+                return res.status(400).json({ status: 'error', attemptsRemaining: 0, message: 'Maximum attempts reached. Please request a new code.' });
+            }
+            return res.status(400).json({ status: 'error', attemptsRemaining: MAX_ATTEMPTS - challenge.attempts, message: 'Incorrect OTP.' });
+        }
+
+        // Correct OTP
+        otpChallenges.splice(challengeIndex, 1);
+        
+        req.session.userId = challenge.userId;
+        return res.status(200).json({ status: 'authenticated', data: { userId: challenge.userId } });
+
+    } catch (error) {
+        console.error('Verify Login OTP Error:', error);
+        res.status(500).json({ status: 'error', message: 'An error occurred during verification.' });
+    }
+});
+
+/**
+ * Authentication Middleware
+ */
+const requireAuth = (req, res, next) => {
+    if (!req.session || !req.session.userId) {
+        return res.status(401).json({ status: 'unauthenticated', message: 'Authentication required.' });
+    }
+    next();
+};
+
+/**
+ * GET /api/me
+ * Returns authenticated user info
+ */
+app.get('/api/me', requireAuth, (req, res) => {
+    const user = users.find(u => u.id === req.session.userId);
+    if (!user) {
+        return res.status(401).json({ status: 'unauthenticated', message: 'User not found.' });
+    }
+    
+    const safeUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        emailVerified: user.emailVerified,
+        mobileVerified: user.mobileVerified,
+        mfaEnabled: user.mfaEnabled,
+        mfaMethod: user.mfaMethod
+    };
+
+    res.status(200).json({ status: 'authenticated', data: { user: safeUser } });
+});
+
+/**
+ * POST /api/logout
+ * Destroys session
+ */
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ status: 'error', message: 'Could not log out.' });
+        }
+        res.clearCookie('connect.sid');
+        return res.status(200).json({ status: 'success', message: 'Logged out successfully.' });
+    });
+});
+
+// ---------------------------------------------------------
+// JWT Authentication Flow
+// ---------------------------------------------------------
+
+/**
+ * JWT Authentication Middleware
+ */
+const requireJwt = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ status: 'error', message: 'Missing or invalid Authorization header.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is missing.');
+        return res.status(500).json({ status: 'error', message: 'Server configuration error.' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ status: 'error', message: 'Invalid or expired token.' });
+        }
+        req.jwtUserId = decoded.sub;
+        next();
+    });
+};
+
+/**
+ * POST /api/token
+ * Issues a short-lived JWT for valid credentials
+ */
+app.post('/api/token', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ status: 'error', message: 'Email and password are required.' });
+        }
+
+        const user = users.find(u => u.email === email);
+        if (!user) {
+            return res.status(401).json({ status: 'error', message: 'Invalid email or password.' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            return res.status(401).json({ status: 'error', message: 'Invalid email or password.' });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET is missing.');
+            return res.status(500).json({ status: 'error', message: 'Server configuration error.' });
+        }
+
+        const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        return res.status(200).json({ status: 'success', data: { token } });
+    } catch (error) {
+        console.error('Token Error:', error);
+        res.status(500).json({ status: 'error', message: 'An internal error occurred.' });
+    }
+});
+
+/**
+ * GET /api/protected
+ * Protected by JWT only
+ */
+app.get('/api/protected', requireJwt, (req, res) => {
+    const user = users.find(u => u.id === req.jwtUserId);
+    if (!user) {
+        return res.status(401).json({ status: 'error', message: 'User no longer exists.' });
+    }
+
+    return res.status(200).json({
+        status: 'success',
+        data: {
+            authenticated: true,
+            userId: user.id
+        }
+    });
 });
 
 // Basic health check endpoint

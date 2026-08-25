@@ -672,4 +672,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // ---------------------------------------------------------
+    // Registration Success Navigation
+    // ---------------------------------------------------------
+    const continueToLoginBtn = document.getElementById('continueToLoginBtn');
+    if (continueToLoginBtn) {
+        continueToLoginBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
 });

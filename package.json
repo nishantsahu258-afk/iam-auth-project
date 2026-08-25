@@ -2,15 +2,17 @@
   "name": "iam-auth-assignment",
   "version": "1.0.0",
   "description": "IAM Authentication & Registration - Internship Assignment",
-  "main": "src/server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
     "nodemailer": "^9.0.5"
   }
 }

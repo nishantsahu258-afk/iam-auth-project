@@ -126,6 +126,7 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 .password-input-wrapper .input-control { padding-right: 2.75rem; }
 .toggle-password {
@@ -586,6 +587,7 @@ li.valid .check-icon {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-icon {
@@ -598,7 +600,7 @@ li.valid .check-icon {
 }
 
 .input-control.has-icon {
-    padding-left: 2.75rem;
+    padding-left: 2.75rem !important;
 }
 
 .login-options {
@@ -663,6 +665,7 @@ li.valid .check-icon {
 @media (min-width: 1024px) {
     .login-wrapper {
         max-width: 900px;
+        min-height: 600px;
         flex-direction: row;
         border-radius: 1rem;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
@@ -673,7 +676,7 @@ li.valid .check-icon {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        width: 45%;
+        width: 35%;
         background-color: var(--primary-color);
         color: var(--white);
         padding: 3rem;
@@ -702,7 +705,7 @@ li.valid .check-icon {
     }
     
     .login-content {
-        width: 55%;
+        width: 65%;
         padding: 3.5rem 4rem;
         display: flex;
         flex-direction: column;
@@ -716,3 +719,6 @@ li.valid .check-icon {
         display: none;
     }
 }
+. t e x t - c e n t e r  
+   t e x t - a l i g n :   c e n t e r   ! i m p o r t a n t ;    
+ 
