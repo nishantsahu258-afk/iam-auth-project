@@ -1,25 +1,21 @@
-# Phase 2: Login Journey - Step 1 Completed
+# Phase 2: Login Journey - Step 2 Completed
 
-The default login screen is now fully implemented according to the design mockups.
+The Invalid Credentials state is now successfully mocked and integrated into the login screen!
 
 ## What was implemented
 
-1. **New UI created at `public/login.html`**:
-   - **Mobile Layout**: Perfectly centered layout containing the SecureID logo at the top and the login form underneath.
-   - **Desktop Layout**: Implemented the beautiful split-card layout. The left sidebar contains the blue branded SecureID pane, while the right side contains the form.
+1. **Invalid Credentials UI State**:
+   - The top-level error banner was removed and replaced with the beautifully structured plain red text below the password input: `Invalid email or password. Please try again.`
+   - Both the Email/Username and Password inputs now receive red borders (`.error` class) upon failed submission.
+   - A dedicated red error icon `(x)` is now displayed inside the Email input field when in error state.
+   - On the mobile layout, the top blue SecureID shield logo now dynamically turns red when the invalid credentials state is triggered.
 
-2. **Frontend Logic (`public/js/login.js`)**:
-   - **Password Visibility**: The eye icon toggles the password text visibility smoothly.
-   - **Form Validation**: Submitting without filling the Email or Password shows visual red error states exactly matching the mockup requirements (red text, red borders, red icons).
-
-3. **Navigation & Consistency**:
-   - The *Registration Journey* remains 100% untouched and functional at `/index.html`.
-   - Clicking "Create an account" on the login screen accurately routes the user back to the existing Registration journey.
-   - Reused the exact same typography, buttons, and input styles for a cohesive SecureID design system.
+2. **Frontend Mock Logic (`public/js/login.js`)**:
+   - Simulated the failed login state. Submitting the form with non-empty fields now perfectly transitions the UI into the Invalid Credentials state as per the mockup.
+   - Interaction is clean: simply start typing again in either field to clear the error state and return to default UI.
 
 ## Verification
-- [x] Tested responsive layouts (Mobile vs Desktop break points)
-- [x] Tested "Create an account" navigation routing
-- [x] Validated that Registration UI (`index.html`) is unaffected
-- [x] Tested form empty validation logic
-- [x] Verified that no backend/API calls were made yet
+- [x] Verified `login.html` layout correctly supports moving the error below the password field.
+- [x] Confirmed the mobile logo shield successfully shifts from blue to red when in error state.
+- [x] Verified the Registration Journey is completely untouched and functioning correctly.
+- [x] Verified zero backend/API calls were implemented.
