@@ -6,7 +6,7 @@ const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
