@@ -2,11 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// Initialize Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+    }
+});
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -89,8 +97,8 @@ app.post('/api/register', async (req, res) => {
         otpChallenges.push({ challengeId: smsChallengeId, userId, channel: 'sms', otpHash: smsOtpHash, expiresAt: expiresAt.toISOString(), attempts: 0 });
         otpChallenges.push({ challengeId: mfaChallengeId, userId, channel: 'mfa_pregenerated', otpHash: mfaOtpHash, expiresAt: expiresAt.toISOString(), attempts: 0 });
 
-        // 8. Send Unified Beautiful Email via Resend
-        if (resend) {
+        // 8. Send Unified Beautiful Email via Nodemailer
+        if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
             const htmlTemplate = `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9fa; padding: 20px; border-radius: 8px;">
                     <div style="text-align: center; margin-bottom: 20px;">
@@ -128,8 +136,8 @@ app.post('/api/register', async (req, res) => {
                 </div>
             `;
 
-            await resend.emails.send({
-                from: 'SecureID <onboarding@resend.dev>',
+            await transporter.sendMail({
+                from: `"SecureID Identity Service" <${process.env.GMAIL_USER}>`,
                 to: email,
                 subject: 'Your SecureID Registration Codes',
                 html: htmlTemplate
