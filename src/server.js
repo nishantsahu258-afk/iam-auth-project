@@ -68,50 +68,80 @@ app.post('/api/register', async (req, res) => {
         };
         users.push(newUser);
 
-        // 5. Generate Email OTP (6 random digits)
-        // Using crypto.randomInt is cryptographically secure compared to Math.random
-        const otp = crypto.randomInt(100000, 1000000).toString(); 
+        // 5. Generate Email, SMS, and MFA OTPs
+        const emailOtp = crypto.randomInt(100000, 1000000).toString();
+        const smsOtp = crypto.randomInt(100000, 1000000).toString();
+        const mfaOtp = crypto.randomInt(100000, 1000000).toString();
         
-        // 6. Protect OTP (Hash it)
-        // A simple SHA-256 hash is often used for short-lived OTPs to avoid plain-text storage
-        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+        // 6. Protect OTPs (Hash them)
+        const emailOtpHash = crypto.createHash('sha256').update(emailOtp).digest('hex');
+        const smsOtpHash = crypto.createHash('sha256').update(smsOtp).digest('hex');
+        const mfaOtpHash = crypto.createHash('sha256').update(mfaOtp).digest('hex');
 
-        // 7. Create OTP Challenge
-        const challengeId = crypto.randomUUID();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Expiry: 5 minutes from now
+        // 7. Create OTP Challenges
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Expiry: 15 minutes for the whole journey
+        
+        const emailChallengeId = crypto.randomUUID();
+        const smsChallengeId = crypto.randomUUID();
+        const mfaChallengeId = crypto.randomUUID();
 
-        const challenge = {
-            challengeId,
-            userId,
-            channel: 'email',
-            otpHash,
-            expiresAt: expiresAt.toISOString(),
-            attempts: 0
-        };
-        otpChallenges.push(challenge);
+        otpChallenges.push({ challengeId: emailChallengeId, userId, channel: 'email', otpHash: emailOtpHash, expiresAt: expiresAt.toISOString(), attempts: 0 });
+        otpChallenges.push({ challengeId: smsChallengeId, userId, channel: 'sms', otpHash: smsOtpHash, expiresAt: expiresAt.toISOString(), attempts: 0 });
+        otpChallenges.push({ challengeId: mfaChallengeId, userId, channel: 'mfa_pregenerated', otpHash: mfaOtpHash, expiresAt: expiresAt.toISOString(), attempts: 0 });
 
-        // 8. Send Email OTP via Resend
-        if (process.env.RESEND_API_KEY) {
+        // 8. Send Unified Beautiful Email via Resend
+        if (resend) {
+            const htmlTemplate = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9fa; padding: 20px; border-radius: 8px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #4f46e5; margin: 0;">SecureID Identity Service</h2>
+                    </div>
+                    
+                    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h3 style="color: #111827; margin-top: 0;">Welcome, ${fullName}!</h3>
+                        <p style="color: #4b5563; line-height: 1.6;">Please use the following verification codes to complete your account registration journey.</p>
+                        
+                        <div style="margin: 30px 0;">
+                            <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #4f46e5; background-color: #f3f4f6;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">Step 1: Email Verification Code</p>
+                                <strong style="font-size: 24px; letter-spacing: 4px; color: #111827;">${emailOtp}</strong>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #10b981; background-color: #f3f4f6;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">Step 2: Mobile Verification Code (Simulated)</p>
+                                <strong style="font-size: 24px; letter-spacing: 4px; color: #111827;">${smsOtp}</strong>
+                                <p style="margin: 5px 0 0 0; font-size: 12px; color: #6b7280;">Intended for mobile: ${mobile}</p>
+                            </div>
+                            
+                            <div style="padding: 15px; border-left: 4px solid #8b5cf6; background-color: #f3f4f6;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">Step 3: MFA Setup Code (Simulated)</p>
+                                <strong style="font-size: 24px; letter-spacing: 4px; color: #111827;">${mfaOtp}</strong>
+                            </div>
+                        </div>
+                        
+                        <p style="color: #6b7280; font-size: 14px;">These codes will expire in 15 minutes. Do not share them with anyone.</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+                        <p><em>Note: This is for prototype purposes only. The actual functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em></p>
+                    </div>
+                </div>
+            `;
+
             await resend.emails.send({
                 from: 'SecureID <onboarding@resend.dev>',
                 to: email,
-                subject: 'Your Registration OTP',
-                html: `
-                    <p>Your secure verification code is: <strong>${otp}</strong></p>
-                    <br/>
-                    <p style="font-size: 0.85em; color: #666;">
-                        <em>Note: This is for prototype purposes only. The actual functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
-                    </p>
-                `
+                subject: 'Your SecureID Registration Codes',
+                html: htmlTemplate
             });
         }
 
         // 9. Return safe success response with challengeId
         res.status(201).json({
             status: 'success',
-            message: 'User registered. Please verify your email.',
+            message: 'User registered. Please check your email for the verification codes.',
             data: {
-                challengeId: challengeId,
+                challengeId: emailChallengeId,
                 method: 'email'
             }
         });
@@ -248,49 +278,18 @@ app.post('/api/send-sms-otp', async (req, res) => {
             });
         }
 
-        // 1. Generate SMS OTP (6 random digits)
-        const otp = crypto.randomInt(100000, 1000000).toString();
-        
-        // 2. Protect OTP (Hash it)
-        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
-
-        // 3. Create OTP Challenge
-        const challengeId = crypto.randomUUID();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Expiry: 5 minutes
-
-        const challenge = {
-            challengeId,
-            userId: user.id,
-            channel: 'sms',
-            otpHash,
-            expiresAt: expiresAt.toISOString(),
-            attempts: 0
-        };
-        otpChallenges.push(challenge);
-
-        // 4. Send "SMS" OTP via Resend (Prototype fallback)
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'SecureID <onboarding@resend.dev>',
-                to: user.email,
-                subject: 'Your Mobile Registration OTP (Simulated)',
-                html: `
-                    <p>Your mobile verification code is: <strong>${otp}</strong></p>
-                    <p><em>(Intended for mobile number: ${user.mobile})</em></p>
-                    <br/>
-                    <p style="font-size: 0.85em; color: #666;">
-                        <em>Note: This is for prototype purposes only. The actual SMS functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
-                    </p>
-                `
-            });
+        // 1. Retrieve pre-generated SMS challenge
+        const existingChallenge = otpChallenges.find(c => c.userId === user.id && c.channel === 'sms');
+        if (!existingChallenge) {
+            return res.status(400).json({ status: 'error', message: 'SMS Challenge not found. Please restart registration.' });
         }
 
-        // 5. Return success response with new challengeId
+        // 2. Return success response with existing challengeId
         res.status(200).json({
             status: 'success',
-            message: 'SMS OTP sent successfully.',
+            message: 'SMS OTP request acknowledged (Check your initial email).',
             data: {
-                challengeId: challengeId,
+                challengeId: existingChallenge.challengeId,
                 method: 'sms'
             }
         });
@@ -446,59 +445,20 @@ app.post('/api/setup-mfa', async (req, res) => {
         user.mfaMethod = method;
         user.mfaEnabled = false;
 
-        // Generate MFA Verification Code (Simulated for all methods in this assignment)
-        const otp = crypto.randomInt(100000, 1000000).toString();
-        
-        // Protect OTP
-        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
-
-        // Create Challenge
-        const challengeId = crypto.randomUUID();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-        const challenge = {
-            challengeId,
-            userId: user.id,
-            channel: method, // 'authenticator', 'sms', or 'email'
-            otpHash,
-            expiresAt: expiresAt.toISOString(),
-            attempts: 0
-        };
-        otpChallenges.push(challenge);
-
-        // Delivery/Generation (All MFA OTPs routed to Resend for prototype)
-        if (process.env.RESEND_API_KEY) {
-            let subject = 'Your MFA Setup Code';
-            let extraInfo = '';
-            
-            if (method === 'sms') {
-                subject = 'Your MFA SMS Code (Simulated)';
-                extraInfo = `<p><em>(Intended for mobile number: ${user.mobile})</em></p>`;
-            } else if (method === 'authenticator') {
-                subject = 'Your Authenticator App Code (Simulated)';
-                extraInfo = `<p><em>(Usually generated by your authenticator app)</em></p>`;
-            }
-
-            await resend.emails.send({
-                from: 'SecureID MFA <onboarding@resend.dev>',
-                to: user.email,
-                subject: subject,
-                html: `
-                    <p>Your MFA setup code is: <strong>${otp}</strong></p>
-                    ${extraInfo}
-                    <br/>
-                    <p style="font-size: 0.85em; color: #666;">
-                        <em>Note: This is for prototype purposes only. The actual functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
-                    </p>
-                `
-            });
+        // Retrieve pre-generated MFA challenge
+        const existingChallenge = otpChallenges.find(c => c.userId === user.id && c.channel === 'mfa_pregenerated');
+        if (!existingChallenge) {
+            return res.status(400).json({ status: 'error', message: 'MFA Challenge not found. Please restart registration.' });
         }
+        
+        // Update the channel for verify-mfa check
+        existingChallenge.channel = method;
 
         res.status(200).json({
             status: 'success',
-            message: `MFA setup started for ${method}.`,
+            message: `MFA setup started for ${method} (Check your initial email).`,
             data: {
-                challengeId: challengeId,
+                challengeId: existingChallenge.challengeId,
                 method: method
             }
         });
