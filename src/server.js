@@ -1,9 +1,12 @@
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -87,13 +90,21 @@ app.post('/api/register', async (req, res) => {
         };
         otpChallenges.push(challenge);
 
-        // 8. Simulate Email Delivery (Print to server console)
-        console.log('\n=============================================');
-        console.log('[SIMULATED EMAIL]');
-        console.log(`To: ${email}`);
-        console.log(`Subject: Your Registration OTP`);
-        console.log(`OTP: ${otp}`);
-        console.log('=============================================\n');
+        // 8. Send Email OTP via Resend
+        if (process.env.RESEND_API_KEY) {
+            await resend.emails.send({
+                from: 'SecureID <onboarding@resend.dev>',
+                to: email,
+                subject: 'Your Registration OTP',
+                html: `
+                    <p>Your secure verification code is: <strong>${otp}</strong></p>
+                    <br/>
+                    <p style="font-size: 0.85em; color: #666;">
+                        <em>Note: This is for prototype purposes only. The actual functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
+                    </p>
+                `
+            });
+        }
 
         // 9. Return safe success response with challengeId
         res.status(201).json({
@@ -211,7 +222,7 @@ app.post('/api/verify-email-otp', (req, res) => {
  * POST /api/send-sms-otp
  * Generate and send an SMS OTP for the second step of verification
  */
-app.post('/api/send-sms-otp', (req, res) => {
+app.post('/api/send-sms-otp', async (req, res) => {
     try {
         const { userId } = req.body;
 
@@ -257,12 +268,22 @@ app.post('/api/send-sms-otp', (req, res) => {
         };
         otpChallenges.push(challenge);
 
-        // 4. Simulate SMS Delivery (Print to server console)
-        console.log('\n=============================================');
-        console.log('[SIMULATED SMS]');
-        console.log(`To: ${user.mobile}`);
-        console.log(`Message: Your SecureID Verification Code is ${otp}`);
-        console.log('=============================================\n');
+        // 4. Send "SMS" OTP via Resend (Prototype fallback)
+        if (process.env.RESEND_API_KEY) {
+            await resend.emails.send({
+                from: 'SecureID <onboarding@resend.dev>',
+                to: user.email,
+                subject: 'Your Mobile Registration OTP (Simulated)',
+                html: `
+                    <p>Your mobile verification code is: <strong>${otp}</strong></p>
+                    <p><em>(Intended for mobile number: ${user.mobile})</em></p>
+                    <br/>
+                    <p style="font-size: 0.85em; color: #666;">
+                        <em>Note: This is for prototype purposes only. The actual SMS functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
+                    </p>
+                `
+            });
+        }
 
         // 5. Return success response with new challengeId
         res.status(200).json({
@@ -387,7 +408,7 @@ app.post('/api/verify-sms-otp', (req, res) => {
  * POST /api/setup-mfa
  * Start the MFA setup process for a verified user
  */
-app.post('/api/setup-mfa', (req, res) => {
+app.post('/api/setup-mfa', async (req, res) => {
     try {
         const { userId, method } = req.body;
 
@@ -445,17 +466,33 @@ app.post('/api/setup-mfa', (req, res) => {
         };
         otpChallenges.push(challenge);
 
-        // Simulate Delivery/Generation
-        console.log('\n=============================================');
-        console.log(`[SIMULATED MFA: ${method.toUpperCase()}]`);
-        if (method === 'authenticator') {
-            console.log(`Enter this code in your app (Simulation): ${otp}`);
-        } else if (method === 'sms') {
-            console.log(`Sending SMS to ${user.mobile}: Your MFA Setup code is ${otp}`);
-        } else if (method === 'email') {
-            console.log(`Sending Email to ${user.email}: Your MFA Setup code is ${otp}`);
+        // Delivery/Generation (All MFA OTPs routed to Resend for prototype)
+        if (process.env.RESEND_API_KEY) {
+            let subject = 'Your MFA Setup Code';
+            let extraInfo = '';
+            
+            if (method === 'sms') {
+                subject = 'Your MFA SMS Code (Simulated)';
+                extraInfo = `<p><em>(Intended for mobile number: ${user.mobile})</em></p>`;
+            } else if (method === 'authenticator') {
+                subject = 'Your Authenticator App Code (Simulated)';
+                extraInfo = `<p><em>(Usually generated by your authenticator app)</em></p>`;
+            }
+
+            await resend.emails.send({
+                from: 'SecureID MFA <onboarding@resend.dev>',
+                to: user.email,
+                subject: subject,
+                html: `
+                    <p>Your MFA setup code is: <strong>${otp}</strong></p>
+                    ${extraInfo}
+                    <br/>
+                    <p style="font-size: 0.85em; color: #666;">
+                        <em>Note: This is for prototype purposes only. The actual functionality can be implemented after getting the proper service and authenticator app credentials for actual implementation for the application.</em>
+                    </p>
+                `
+            });
         }
-        console.log('=============================================\n');
 
         res.status(200).json({
             status: 'success',
