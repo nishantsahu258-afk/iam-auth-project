@@ -213,6 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const otpBoxes = document.querySelectorAll('#otpForm .otp-box');
     otpBoxes.forEach((box, index) => {
         box.addEventListener('input', (e) => {
+            const otpError = document.getElementById('otpError');
+            if(otpError) otpError.style.display = 'none';
+            otpBoxes.forEach(b => b.classList.remove('error'));
+
             box.value = box.value.replace(/[^0-9]/g, ''); // Numeric only
             if (e.target.value.length === 1 && index < otpBoxes.length - 1) {
                 otpBoxes[index + 1].focus();
@@ -245,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(otpError) {
                     otpError.textContent = 'Please enter all 6 digits.';
                     otpError.style.display = 'block';
+                    otpBoxes.forEach(b => b.classList.add('error'));
                 }
                 return;
             }
@@ -315,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(otpError) {
                     otpError.textContent = error.message;
                     otpError.style.display = 'block';
+                    otpBoxes.forEach(b => b.classList.add('error'));
                 }
 
                 // Clear input boxes on error for easy re-entry
@@ -348,6 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const smsOtpBoxes = document.querySelectorAll('#smsOtpForm .otp-box');
     smsOtpBoxes.forEach((box, index) => {
         box.addEventListener('input', (e) => {
+            const smsOtpError = document.getElementById('smsOtpError');
+            if(smsOtpError) smsOtpError.style.display = 'none';
+            smsOtpBoxes.forEach(b => b.classList.remove('error'));
+
             box.value = box.value.replace(/[^0-9]/g, ''); // Numeric only
             if (e.target.value.length === 1 && index < smsOtpBoxes.length - 1) {
                 smsOtpBoxes[index + 1].focus();
@@ -380,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(smsOtpError) {
                     smsOtpError.textContent = 'Please enter all 6 digits.';
                     smsOtpError.style.display = 'block';
+                    smsOtpBoxes.forEach(b => b.classList.add('error'));
                 }
                 return;
             }
@@ -451,10 +462,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(error => {
-                // Show API error message
                 if(smsOtpError) {
                     smsOtpError.textContent = error.message;
                     smsOtpError.style.display = 'block';
+                    smsOtpBoxes.forEach(b => b.classList.add('error'));
                 }
 
                 // Clear input boxes on error for easy re-entry
@@ -575,6 +586,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const mfaOtpBoxes = document.querySelectorAll('.mfa-otp-box');
     mfaOtpBoxes.forEach((box, index) => {
         box.addEventListener('input', (e) => {
+            const mfaVerifyError = document.getElementById('mfaVerifyError');
+            if(mfaVerifyError) mfaVerifyError.style.display = 'none';
+            mfaOtpBoxes.forEach(b => b.classList.remove('error'));
+
             box.value = box.value.replace(/[^0-9]/g, ''); // Numeric only
             if (e.target.value.length === 1 && index < mfaOtpBoxes.length - 1) {
                 mfaOtpBoxes[index + 1].focus();
@@ -605,6 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(mfaVerifyError) {
                     mfaVerifyError.textContent = 'Please enter the 6-digit code.';
                     mfaVerifyError.style.display = 'block';
+                    mfaOtpBoxes.forEach(b => b.classList.add('error'));
                 }
                 return;
             }
@@ -642,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(mfaVerifyError) {
                     mfaVerifyError.textContent = error.message;
                     mfaVerifyError.style.display = 'block';
+                    mfaOtpBoxes.forEach(b => b.classList.add('error'));
                 }
                 const boxes = document.querySelectorAll('.mfa-otp-box');
                 boxes.forEach(box => box.value = '');

@@ -281,6 +281,20 @@ li.valid .check-icon {
 /* -------------------------------------
  * Error States
  * ------------------------------------- */
+.form-error {
+    color: #EF4444; /* Red text */
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.otp-box.error {
+    border-color: #EF4444;
+    color: #EF4444;
+}
+.otp-box.error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
 .input-control.error, 
 .phone-input-group.error {
     border-color: #EF4444; /* Red border */
@@ -316,6 +330,13 @@ li.valid .check-icon {
         padding: 2rem 3rem;
         border-radius: 1rem;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    
+    .form-error {
+        background-color: #FEE2E2;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .card-header { margin-bottom: 1.5rem; }
