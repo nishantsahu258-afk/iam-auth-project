@@ -35,9 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (group && group.classList.contains('has-error')) {
                 group.classList.remove('has-error');
                 inputElement.classList.remove('error');
+                
+                // Hide specific error icon if it exists
+                const errorIcon = group.querySelector('.error-icon');
+                if (errorIcon) errorIcon.style.display = 'none';
             }
             if (loginError) {
                 loginError.style.display = 'none';
+            }
+            
+            // Reset mobile logo color if it was red
+            const mobileLogo = document.querySelector('#mobileLogoContainer svg');
+            if (mobileLogo) {
+                mobileLogo.style.color = '#1A56DB';
             }
         });
     };
@@ -62,8 +72,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (group) {
                     group.classList.add('has-error');
                     if (input) input.classList.add('error');
+                    
                     const errorText = group.querySelector('.error-text');
                     if (errorText) errorText.textContent = message;
+                    
+                    const errorIcon = group.querySelector('.error-icon');
+                    if (errorIcon) errorIcon.style.display = 'flex';
+                }
+            };
+
+            // Remove previous error icons just in case
+            document.querySelectorAll('.error-icon').forEach(el => el.style.display = 'none');
+            
+            // Helper to show top level invalid credentials error
+            const setInvalidCredentials = () => {
+                if (loginError) {
+                    loginError.textContent = 'Invalid email or password. Please try again.';
+                    loginError.style.display = 'block';
+                    
+                    // Add error class to inputs to match invalid credentials mockup
+                    setError('email', '');
+                    setError('password', '');
+                    
+                    // Turn mobile top logo red
+                    const mobileLogo = document.querySelector('#mobileLogoContainer svg');
+                    if (mobileLogo) {
+                        mobileLogo.style.color = '#EF4444';
+                    }
                 }
             };
 
@@ -83,16 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (isValid) {
                 // If everything is valid, we don't do API calls per requirements.
-                // Just for testing UI state, we can simulate an invalid credential state.
-                // For now, we will just show a top-level fake error to show that the submit action worked.
-                if (loginError) {
-                    loginError.textContent = 'Invalid email or password. Please try again.';
-                    loginError.style.display = 'block';
-                    
-                    // Add error class to inputs to match invalid credentials mockup
-                    setError('email', '');
-                    setError('password', '');
-                }
+                // Just for testing UI state, we simulate an invalid credential state.
+                setInvalidCredentials();
             }
         });
     }
