@@ -34,21 +34,57 @@ document.addEventListener('DOMContentLoaded', () => {
     passwordInput.addEventListener('input', () => {
         const value = passwordInput.value;
         
+        let strengthScore = 0;
+
         // At least 8 characters
-        if (value.length >= 8) reqLength.classList.add('valid');
+        if (value.length >= 8) { reqLength.classList.add('valid'); strengthScore++; }
         else reqLength.classList.remove('valid');
         
         // At least 1 uppercase letter
-        if (/[A-Z]/.test(value)) reqUpper.classList.add('valid');
+        if (/[A-Z]/.test(value)) { reqUpper.classList.add('valid'); strengthScore++; }
         else reqUpper.classList.remove('valid');
         
         // At least 1 number
-        if (/[0-9]/.test(value)) reqNumber.classList.add('valid');
+        if (/[0-9]/.test(value)) { reqNumber.classList.add('valid'); strengthScore++; }
         else reqNumber.classList.remove('valid');
         
         // At least 1 special character
-        if (/[^A-Za-z0-9]/.test(value)) reqSpecial.classList.add('valid');
+        if (/[^A-Za-z0-9]/.test(value)) { reqSpecial.classList.add('valid'); strengthScore++; }
         else reqSpecial.classList.remove('valid');
+
+        // Dynamic Strength Indicator UI
+        const container = document.getElementById('password-strength-container');
+        const textLabel = document.getElementById('strength-text');
+        
+        if (container && textLabel) {
+            if (value.length > 0) {
+                container.style.display = 'flex';
+                // Reset classes
+                container.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+                
+                let currentStrength = 'Weak';
+                
+                if (strengthScore <= 2) {
+                    currentStrength = 'Weak';
+                    container.classList.add('strength-weak');
+                    textLabel.textContent = 'Weak';
+                } else if (strengthScore === 3) {
+                    currentStrength = 'Medium';
+                    container.classList.add('strength-medium');
+                    textLabel.textContent = 'Medium';
+                } else if (strengthScore === 4) {
+                    currentStrength = 'Strong';
+                    container.classList.add('strength-strong');
+                    textLabel.textContent = 'Strong';
+                }
+                
+                // Store strength for validation
+                passwordInput.dataset.strength = currentStrength;
+            } else {
+                container.style.display = 'none';
+                passwordInput.dataset.strength = 'Weak';
+            }
+        }
     });
 
     // 3. Clear error states when user starts typing again
@@ -122,11 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Validate Password
         const pw = passwordInput.value;
-        const pwValid = pw.length >= 8 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+        const currentStrength = passwordInput.dataset.strength || 'Weak';
+        
         if (!pw) {
             setError('password', 'Password is required.');
-        } else if (!pwValid) {
-            setError('password', 'Password must meet all requirements listed.');
+        } else if (currentStrength !== 'Strong') {
+            setError('password', 'Password is too weak. Must be Strong.');
         }
 
         // Validate Terms
